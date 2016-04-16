@@ -66,6 +66,7 @@
 
   module.exports.postPlayer = function(req, res) {
     var record = getRecAndGenId(req);
+    console.log('input record', record);
 
     dataHelper.createOrUpdateRecord(record, 'player', function(err, recordOutput) {
       if (err) {
@@ -107,6 +108,7 @@
 
   module.exports.postPlayerMatch = function(req, res) {
     var record = getRecAndGenId(req);
+    console.log('input record', record);
 
     dataHelper.createOrUpdateRecord(record, 'playerMatch', function(err, recordOutput) {
       if (err) {
@@ -147,6 +149,7 @@
   module.exports.postMatch = function(req, res) {
 
     var record = getRecAndGenId(req);
+    console.log('input record', record);
 
     dataHelper.createOrUpdateRecord(record, 'match', function(err, recordOutput) {
       if (err) {
@@ -187,6 +190,7 @@
 
   module.exports.postFeatureRequest = function(req, res) {
     var record = getRecAndGenId(req);
+    console.log('input record', record);
 
     dataHelper.createOrUpdateRecord(record, 'featureRequest', function(err, recordOutput) {
       if (err) {
@@ -214,6 +218,7 @@
         sendJson(res, 400, {message: "No data was provided"});
     } else {
       var records = req.body;
+      console.log('input records', records);
       dataHelper.createOrUpdateAll(records, function(err, recordOutput) {
         if (err) {
           sendJson(res, 400, {error: err, records: recordOutput});

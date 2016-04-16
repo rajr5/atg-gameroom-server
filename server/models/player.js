@@ -5,6 +5,7 @@
   var Schema = mongoose.Schema;
 
   var playerSchema = new Schema({
+    id: { type: String },
     Name: { type: String },
     atg_gameroom__External_Id__c: { type: String },
     atg_gameroom__Active__c: { type: Boolean },
@@ -15,6 +16,6 @@
     created: { type: Date, default: Date.now },
   });
 
-  module.exports = mongoose.model('PlayerSchema', playerSchema);
+  module.exports = mongoose.model('Player', playerSchema);
 
 })();
