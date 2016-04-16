@@ -50,28 +50,28 @@
   }
 
   /** Fetch all records in DB and callback with compiled object - PUBLIC */
-  function fetchAllRecords(cb) {
+  function fetchAllRecords(excludeId, cb) {
     var output = {};
     // Get players
-    fetchPlayers(function(err, players) {
+    fetchPlayers(excludeId, function(err, players) {
       if (err) {
         cb(err, output);
       } else {
         output.players = players;
         // Get Player MAtches
-        fetchPlayerMatches(function(err, playerMatches) {
+        fetchPlayerMatches(excludeId, function(err, playerMatches) {
           if (err) {
             cb(err, output);
           } else {
             output.playerMatches = playerMatches;
             // Get MAtches
-            fetchMatches(function(err, matches) {
+            fetchMatches(excludeId, function(err, matches) {
               if (err) {
                 cb(err, output);
               } else {
                 output.matches = matches;
                 // Get Feature Requests
-                fetchFeatureRequests(function(err, featureRequests) {
+                fetchFeatureRequests(excludeId, function(err, featureRequests) {
                   if (err) {
                     cb(err, output);
                   } else {
@@ -388,20 +388,36 @@
 
   /////////////// DB Fetch Methods //////////////////////
 
-  function fetchPlayers(cb) {
-    Player.find({}, cb);
+  function fetchPlayers(excludeId, cb) {
+    if (excludeId) {
+      Player.find({},{id:0, _id:0}, cb);
+    } else {
+      Player.find({}, cb);
+    }
   }
 
-  function fetchPlayerMatches(cb) {
-    PlayerMatch.find({}, cb);
+  function fetchPlayerMatches(excludeId, cb) {
+    if (excludeId) {
+      PlayerMatch.find({},{id:0, _id:0}, cb);
+    } else {
+      PlayerMatch.find({}, cb);
+    }
   }
 
-  function fetchMatches(cb) {
-    Match.find({}, cb);
+  function fetchMatches(excludeId, cb) {
+    if (excludeId) {
+      Match.find({},{id:0, _id:0}, cb);
+    } else {
+      Match.find({}, cb);
+    }
   }
 
-  function fetchFeatureRequests(cb) {
-    FeatureRequest.find({}, cb);
+  function fetchFeatureRequests(excludeId, cb) {
+    if (excludeId) {
+      FeatureRequest.find({},{id:0, _id:0}, cb);
+    } else {
+      FeatureRequest.find({}, cb);
+    }
   }
 
   /////////////// EXPORTED PUBLIC FUNCTIONS //////////////////
