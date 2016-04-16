@@ -29,6 +29,9 @@
       recordType = recordType.toLowerCase();
       // build object with specific fields based on model
       record = getObjForRecordType(record, recordType);
+      console.log('--- Creating or updating record ---');
+      console.log('recordType', recordType);
+      console.log('record', record);
       if (recordType === 'player') {
         createOrSavePlayer(record, cb);
       } else if (recordType === 'match') {
@@ -121,9 +124,9 @@
   function getObjForRecordType(record, recordType) {
     recordType = recordType.toLowerCase();
     var returnRecord = {};
-
     if (recordType === 'player') {
       returnRecord = {
+        id: record.Id,
         Name: record.Name,
         atg_gameroom__External_Id__c: record.atg_gameroom__External_Id__c,
         atg_gameroom__Active__c: record.atg_gameroom__Active__c,
@@ -135,6 +138,7 @@
       };
     } else if (recordType === 'match') {
       returnRecord = {
+        id: record.Id,
         Name: record.Name,
         atg_gameroom__External_Id__c: record.atg_gameroom__External_Id__c,
         atg_gameroom__Game__c: record.atg_gameroom__Game__c,
@@ -142,6 +146,7 @@
       };
     } else if (recordType === 'playermatch') {
       returnRecord = {
+        id: record.Id,
         Name: record.Name,
         atg_gameroom__External_Id__c: record.atg_gameroom__External_Id__c,
         atg_gameroom__Handicap__c: record.atg_gameroom__Handicap__c,
@@ -154,6 +159,7 @@
       };
     } else if (recordType === 'featurerequest') {
       returnRecord = {
+        id: record.Id,
         Name: record.Name,
         atg_gameroom__External_Id__c: record.atg_gameroom__External_Id__c,
         atg_gameroom__Feature_Description__c: record.atg_gameroom__Feature_Description__c,

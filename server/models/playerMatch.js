@@ -5,6 +5,7 @@
   var Schema = mongoose.Schema;
 
   var playerMatchSchema = new Schema({
+    id: { type: String },
     Name: { type: String },
     atg_gameroom__External_Id__c: { type: String },
     atg_gameroom__Game__c: { type: String },

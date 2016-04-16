@@ -5,6 +5,7 @@
   var Schema = mongoose.Schema;
 
   var featureRequestSchema = new Schema({
+    id: { type: String },
     Name: { type: String },
     atg_gameroom__External_Id__c: { type: String },
     atg_gameroom__Feature_Description__c: { type: String },
