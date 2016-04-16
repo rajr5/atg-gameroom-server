@@ -3,7 +3,7 @@
     try {
         require('dotenv').load();
     } catch (e) {
-        console.log('Error loading .env file. No environment variables loaded');
+        console.log('Error loading .env file. No environment variables loaded.');
     }
 
     var express = require('express');
