@@ -51,6 +51,7 @@
 
   /** Fetch all records in DB and callback with compiled object - PUBLIC */
   function fetchAllRecords(excludeId, cb) {
+    console.log('exclude ids: ', excludeId);
     var output = {};
     // Get players
     fetchPlayers(excludeId, function(err, players) {
