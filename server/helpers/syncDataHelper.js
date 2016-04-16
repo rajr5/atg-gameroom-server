@@ -124,18 +124,17 @@
   function getObjForRecordType(record, recordType) {
     recordType = recordType.toLowerCase();
     var returnRecord = {};
-    console.log('record about to be returned', record);
     if (recordType === 'player') {
       returnRecord = {
         id: record.Id,
         Name: record.Name,
-        atg_gameroom__External_Id__c: record["atg_gameroom__External_Id__c"],
-        atg_gameroom__Active__c: record["atg_gameroom__Active__c"],
-        atg_gameroom__Email__c: record["atg_gameroom__Email__c"],
-        atg_gameroom__Game__c: record["atg_gameroom__Game__c"],
-        atg_gameroom__Player_Edit_Token__c: record["atg_gameroom__Player_Edit_Token__c"],
-        atg_gameroom__Screen_Name__c: record["atg_gameroom__Screen_Name__c"],
-        atg_gameroom__Player_Created_Date__c: record["atg_gameroom__Player_Created_Date__c"]
+        atg_gameroom__External_Id__c: record.atg_gameroom__External_Id__c,
+        atg_gameroom__Active__c: record.atg_gameroom__Active__c,
+        atg_gameroom__Email__c: record.atg_gameroom__Email__c,
+        atg_gameroom__Game__c: record.atg_gameroom__Game__c,
+        atg_gameroom__Player_Edit_Token__c: record.atg_gameroom__Player_Edit_Token__c,
+        atg_gameroom__Screen_Name__c: record.atg_gameroom__Screen_Name__c,
+        atg_gameroom__Player_Created_Date__c: record.atg_gameroom__Player_Created_Date__c
       };
     } else if (recordType === 'match') {
       returnRecord = {
