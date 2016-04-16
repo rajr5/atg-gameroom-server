@@ -5,6 +5,8 @@
   var router = express.Router();
   var syncDataController = require('./controllers/syncDataController');
 
+//////////////// NEED TO ADD ABILITY TO DELETE RECORDS... ADMIN ONLY /////////////////////////////
+
   /** Routes */
   router.get('/player', syncDataController.getPlayer);
   router.post('/player', syncDataController.postPlayer);

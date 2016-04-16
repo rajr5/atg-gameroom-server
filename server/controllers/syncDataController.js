@@ -21,16 +21,22 @@
    * 405 method not allowed
    */
   /** Helper function to send JSON server response */
-  var sendJson = function(res, status, content) {
-        // Add default message
-        content = content || {};
-        if ((status === 200 || status === 201 || status === 203) &&
-            !content.hasOwnProperty('message')) {
-                content.message = "ok";
-        }
+  function sendJson(res, status, content, keyName) {
+    content = content || {};
+    if (keyName) {
+      var temp = {};
+
+      temp[keyName] = content;
+      content = temp;
+    }
         res.status(status);
         res.json(content);
-  };
+  }
+
+  function getRecAndGenId(req) {
+    var record = req.body || {};
+    return dataHelper.genIdIfNotExist(record);
+  }
 
   // could just generate ID here instead of using helper
 
@@ -42,82 +48,114 @@
       if (err) {
         sendJson(res, 400, {message: "Error fetching records", error: err});
       } else {
-        sendJson(res, 201, players);
+        sendJson(res, 201, players, 'players');
       }
     });
   };
-
 
   module.exports.postPlayer = function(req, res) {
     // gen ext id if not exists
     // check ext id exists already
     // update if so, create if no
-    var record = res.body;
-    dataHelper(record);
-    // check if player exists
-    Player.findOne(
-      {atg_gameroom__External_Id__c: record.atg_gameroom__External_Id__c},
-      function(err, player) {
-        if (err) {
-          sendJson(res, 400, {message: "Error creating record", error: err});
-        } else {
-          // create player if not found
-          if (!player) {
-            // Create player
-            player = new Player(record);
-            player.save(function(err) {
-              if (err) {
-                sendJson(res, 400, {message: "Error creating record", error: err});
-              } else {
-                sendJson(res, 201, player);
-              }
-            });
-          } else {
-            // update player
-            Player.findOneAndUpdate(
-              {atg_gameroom__External_Id__c: record.atg_gameroom__External_Id__c},
-              player,function(err) {
-                if (err) {
-                  sendJson(res, 400, {message: "Error creating record", error: err});
-                } else {
-                  sendJson(res, 201, player);
-                }
-              });
-          }
-        }
+    var record = getRecAndGenId(req);
+
+    dataHelper.createOrUpdateRecord(record, 'player', function(err, recordOutput) {
+      if (err) {
+        sendJson(res, 400, {message: "Error creating or updating record", error: err});
+      } else {
+        sendJson(res, 201, recordOutput, 'player');
+      }
     });
+
   };
 
   module.exports.getPlayerMatch = function(req, res) {
+    // get all players, if ID is specified, then I guess get one player???
+    var players = getRecAndGenId(req);
+    PlayerMatch.find({}, function(err, playerMatch) {
+      if (err) {
+        sendJson(res, 400, {message: "Error fetching records", error: err});
+      } else {
+        sendJson(res, 201, playerMatch);
+      }
+    });
 
   };
 
   module.exports.postPlayerMatch = function(req, res) {
+    var record = getRecAndGenId(req);
 
+    dataHelper.createOrUpdateRecord(record, 'playerMatch', function(err, recordOutput) {
+      if (err) {
+        sendJson(res, 400, {message: "Error creating or updating record", error: err});
+      } else {
+        sendJson(res, 201, recordOutput, 'playerMatch');
+      }
+    });
   };
 
   module.exports.getMatch = function(req, res) {
+    // get all players, if ID is specified, then I guess get one player???
+    Match.find({}, function(err, match) {
+      if (err) {
+        sendJson(res, 400, {message: "Error fetching records", error: err});
+      } else {
+        sendJson(res, 201, match);
+      }
+    });
 
   };
 
   module.exports.postMatch = function(req, res) {
 
+    var record = getRecAndGenId(req);
+
+    dataHelper.createOrUpdateRecord(record, 'match', function(err, recordOutput) {
+      if (err) {
+        sendJson(res, 400, {message: "Error creating or updating record", error: err});
+      } else {
+        sendJson(res, 201, recordOutput, 'match');
+      }
+    });
   };
 
   module.exports.getFeatureRequest = function(req, res) {
+    // get all players, if ID is specified, then I guess get one player???
+    FeatureRequest.find({}, function(err, featureRequest) {
+      if (err) {
+        sendJson(res, 400, {message: "Error fetching records", error: err});
+      } else {
+        sendJson(res, 201, featureRequest);
+      }
+    });
 
   };
 
   module.exports.postFeatureRequest = function(req, res) {
+    var record = getRecAndGenId(req);
 
+    dataHelper.createOrUpdateRecord(record, 'featureRequest', function(err, recordOutput) {
+      if (err) {
+        sendJson(res, 400, {message: "Error creating or updating record", error: err});
+      } else {
+        sendJson(res, 201, recordOutput, 'featureRequest');
+      }
+    });
   };
 
   module.exports.getAll = function(req, res) {
-    // use all other helper methods, query and combine all data
+    dataHelper.fetchAllRecords(function(err, output) {
+      if (err) {
+        sendJson(res, 400, {message: "Error fetching records", error: err, records: output});
+      } else {
+        sendJson(res, 201, output, 'records');
+      }
+    });
   };
 
   module.exports.postAll = function(req, res) {
-    // post all data... check each record for external id and if non existent, then I guess generate them?
+    // post all data... check each record for external id and if non existent, then generate them
   };
 
 })();
+
