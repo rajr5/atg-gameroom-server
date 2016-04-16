@@ -38,11 +38,27 @@
     return dataHelper.genIdIfNotExist(record);
   }
 
+  function excludeIds(req) {
+    var param = req.query.excludeId || req.query.excludeid || req.query.excludeID;
+
+    if(param) {
+      if (param === true || param === 'true' || param === 'TRUE' || param === 'True') {
+        console.log('param2', param);
+        return true;
+      }
+    } else {
+      console.log('param3', param);
+      return false;
+    }
+  }
+
   /** Controllers */
   //////////////////////////////////////////// PLAYER ////////////////////////////////////////////
 
   module.exports.getPlayers = function(req, res) {
-    Player.find({}, function(err, recordOutput) {
+
+    var excl = excludeIds(req) ? {id: 0, _id: 0} : {};
+    Player.find({}, excl, function(err, recordOutput) {
       if (err) {
         sendJson(res, 400, {message: "Error fetching records", error: err});
       } else {
@@ -81,9 +97,10 @@
 ////////////////////////////////////// PLAYER MATCHES ////////////////////////////////////////
 
   module.exports.getPlayerMatches = function(req, res) {
-    // get all players, if ID is specified, then I guess get one player???
+
     var players = getRecAndGenId(req);
-    PlayerMatch.find({}, function(err, recordOutput) {
+    var excl = excludeIds(req) ? {id: 0, _id: 0} : {};
+    PlayerMatch.find({}, excl, function(err, recordOutput) {
       if (err) {
         sendJson(res, 400, {message: "Error fetching records", error: err});
       } else {
@@ -122,8 +139,10 @@
 /////////////////////////////////////////////// MATCHES ///////////////////////////////////////////////////
 
   module.exports.getMatches = function(req, res) {
+
     // get all players, if ID is specified, then I guess get one player???
-    Match.find({}, function(err, recordOutput) {
+    var excl = excludeIds(req) ? {id: 0, _id: 0} : {};
+    Match.find({}, excl, function(err, recordOutput) {
       if (err) {
         sendJson(res, 400, {message: "Error fetching records", error: err});
       } else {
@@ -164,8 +183,9 @@
 ////////////////////////////////////////// FEATURE REQUESTS /////////////////////////////////////////////
 
   module.exports.getFeatureRequests = function(req, res) {
-    // get all players, if ID is specified, then I guess get one player???
-    FeatureRequest.find({}, function(err, recordOutput) {
+
+    var excl = excludeIds(req) ? {id: 0, _id: 0} : {};
+    FeatureRequest.find({}, excl, function(err, recordOutput) {
       if (err) {
         sendJson(res, 400, {message: "Error fetching records", error: err});
       } else {
@@ -204,7 +224,8 @@
  //////////////////////////////////////// ALL RECORDS //////////////////////////////////////////////////////
 
   module.exports.getAll = function(req, res) {
-    dataHelper.fetchAllRecords(function(err, recordOutput) {
+
+    dataHelper.fetchAllRecords(excludeIds(), function(err, recordOutput) {
       if (err) {
         sendJson(res, 400, {message: "Error fetching records", error: err, records: recordOutput});
       } else {
