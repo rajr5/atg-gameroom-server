@@ -38,25 +38,33 @@
     return dataHelper.genIdIfNotExist(record);
   }
 
-  // could just generate ID here instead of using helper
-
   /** Controllers */
+  //////////////////////////////////////////// PLAYER ////////////////////////////////////////////
 
-  module.exports.getPlayer = function(req, res) {
-    // get all players, if ID is specified, then I guess get one player???
-    Player.find({}, function(err, players) {
+  module.exports.getPlayers = function(req, res) {
+    Player.find({}, function(err, recordOutput) {
       if (err) {
         sendJson(res, 400, {message: "Error fetching records", error: err});
       } else {
-        sendJson(res, 201, players, 'players');
+        sendJson(res, 201, recordOutput, 'players');
+      }
+    });
+  };
+
+  module.exports.getPlayer = function(req, res) {
+    var record = req.body || {};
+    Player.findOne(
+      {atg_gameroom__External_Id__c: req.params.externalId},
+      function(err, recordOutput) {
+      if (err) {
+        sendJson(res, 400, {message: "Error fetching record", error: err});
+      } else {
+        sendJson(res, 201, recordOutput, 'player');
       }
     });
   };
 
   module.exports.postPlayer = function(req, res) {
-    // gen ext id if not exists
-    // check ext id exists already
-    // update if so, create if no
     var record = getRecAndGenId(req);
 
     dataHelper.createOrUpdateRecord(record, 'player', function(err, recordOutput) {
@@ -69,17 +77,32 @@
 
   };
 
-  module.exports.getPlayerMatch = function(req, res) {
+////////////////////////////////////// PLAYER MATCHES ////////////////////////////////////////
+
+  module.exports.getPlayerMatches = function(req, res) {
     // get all players, if ID is specified, then I guess get one player???
     var players = getRecAndGenId(req);
-    PlayerMatch.find({}, function(err, playerMatch) {
+    PlayerMatch.find({}, function(err, recordOutput) {
       if (err) {
         sendJson(res, 400, {message: "Error fetching records", error: err});
       } else {
-        sendJson(res, 201, playerMatch);
+        sendJson(res, 201, recordOutput, 'playerMatches');
       }
     });
 
+  };
+
+  module.exports.getPlayerMatch = function(req, res) {
+    var record = req.body || {};
+    PlayerMatch.findOne(
+      {atg_gameroom__External_Id__c: req.params.externalId},
+      function(err, recordOutput) {
+      if (err) {
+        sendJson(res, 400, {message: "Error fetching record", error: err});
+      } else {
+        sendJson(res, 201, recordOutput, 'playerMatch');
+      }
+    });
   };
 
   module.exports.postPlayerMatch = function(req, res) {
@@ -94,16 +117,31 @@
     });
   };
 
-  module.exports.getMatch = function(req, res) {
+/////////////////////////////////////////////// MATCHES ///////////////////////////////////////////////////
+
+  module.exports.getMatches = function(req, res) {
     // get all players, if ID is specified, then I guess get one player???
-    Match.find({}, function(err, match) {
+    Match.find({}, function(err, recordOutput) {
       if (err) {
         sendJson(res, 400, {message: "Error fetching records", error: err});
       } else {
-        sendJson(res, 201, match);
+        sendJson(res, 201, recordOutput, 'matches');
       }
     });
 
+  };
+
+  module.exports.getMatch = function(req, res) {
+    var record = req.body || {};
+    Match.findOne(
+      {atg_gameroom__External_Id__c: req.params.externalId},
+      function(err, recordOutput) {
+      if (err) {
+        sendJson(res, 400, {message: "Error fetching record", error: err});
+      } else {
+        sendJson(res, 201, recordOutput, 'match');
+      }
+    });
   };
 
   module.exports.postMatch = function(req, res) {
@@ -119,16 +157,32 @@
     });
   };
 
-  module.exports.getFeatureRequest = function(req, res) {
+
+////////////////////////////////////////// FEATURE REQUESTS /////////////////////////////////////////////
+
+  module.exports.getFeatureRequests = function(req, res) {
     // get all players, if ID is specified, then I guess get one player???
-    FeatureRequest.find({}, function(err, featureRequest) {
+    FeatureRequest.find({}, function(err, recordOutput) {
       if (err) {
         sendJson(res, 400, {message: "Error fetching records", error: err});
       } else {
-        sendJson(res, 201, featureRequest);
+        sendJson(res, 201, recordOutput, 'featureRequest');
       }
     });
 
+  };
+
+  module.exports.getFeatureRequest = function(req, res) {
+    var record = req.body || {};
+    FeatureRequest.findOne(
+      {atg_gameroom__External_Id__c: req.params.externalId},
+      function(err, recordOutput) {
+      if (err) {
+        sendJson(res, 400, {message: "Error fetching record", error: err});
+      } else {
+        sendJson(res, 201, recordOutput, 'featureRequest');
+      }
+    });
   };
 
   module.exports.postFeatureRequest = function(req, res) {
@@ -143,18 +197,31 @@
     });
   };
 
+ //////////////////////////////////////// ALL RECORDS //////////////////////////////////////////////////////
+
   module.exports.getAll = function(req, res) {
-    dataHelper.fetchAllRecords(function(err, output) {
+    dataHelper.fetchAllRecords(function(err, recordOutput) {
       if (err) {
-        sendJson(res, 400, {message: "Error fetching records", error: err, records: output});
+        sendJson(res, 400, {message: "Error fetching records", error: err, records: recordOutput});
       } else {
-        sendJson(res, 201, output, 'records');
+        sendJson(res, 201, recordOutput, 'records');
       }
     });
   };
 
   module.exports.postAll = function(req, res) {
-    // post all data... check each record for external id and if non existent, then generate them
+    if (!req.body) {
+        sendJson(res, 400, {message: "No data was provided"});
+    } else {
+      var records = req.body;
+      dataHelper.createOrUpdateAll(records, function(err, recordOutput) {
+        if (err) {
+          sendJson(res, 400, {error: err, records: recordOutput});
+        } else {
+          sendJson(res, 201, recordOutput, 'records');
+        }
+      });
+    }
   };
 
 })();

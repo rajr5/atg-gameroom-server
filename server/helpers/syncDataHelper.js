@@ -3,14 +3,16 @@
   var crypto = require('crypto');
   var async = require('async');
 
-  /** Generate ID - PRIVATE */
-  function genId() {
-    return crypto.randomBytes(16).toString('hex');
-  }
+  var FeatureRequest = require('../models/featureRequest');
+  var Match = require('../models/match');
+  var Player = require('../models/player');
+  var PlayerMatch = require('../models/playerMatch');
+
+
   /** Generate id if one does not already exist - PUBLIC */
   function genIdIfNotExist(record) {
     if (!record.atg_gameroom__External_Id__c) {
-      record.atg_gameroom__External_Id__c = genId();
+      record.atg_gameroom__External_Id__c = crypto.randomBytes(16).toString('hex');
     }
     return record;
   }
@@ -24,16 +26,16 @@
    */
   function createOrUpdateRecord(record, recordType, cb) {
     try {
-      recordType = recordTyperecordType.toLowerCase();
+      recordType = recordType.toLowerCase();
       // build object with specific fields based on model
       record = getObjForRecordType(record, recordType);
       if (recordType === 'player') {
         createOrSavePlayer(record, cb);
       } else if (recordType === 'match') {
         createOrSaveMatch(record, cb);
-      } else if (recordType === 'playerMatch') {
+      } else if (recordType === 'playermatch') {
         createOrSavePlayerMatch(record, cb);
-      } else if (recordType === 'featureRequest') {
+      } else if (recordType === 'featurerequest') {
         createOrSaveFeatureRequest(record, cb);
       } else {
         // THROW EXCEPTION, record type not found
@@ -80,151 +82,48 @@
         });
       }
     });
+  }
 
     /**
      * Create or update all records of all types
      * @param  {Object}   records Object with keys matching the record type names
      * @param  {Function} cb      Callback function(err, records)
-     * @return {Object}           Object of all created records
+     * @return {callback}           Object of all created records
      */
   function createOrUpdateAll(records, cb) {
     // Loop all records, determine if any of them already exist.
     // For items that do ot exist, we have to insert
     try {
-      var errors = [];
+      records = records || {}; // maybe check and return meaningful error if needed
       async.parallel({
         players: function(callback){
-          var players = [];
-          if (records.hasOwnProperty('players')) {
-            for (var i = 0; i < records.players.length; i++) {
-              createOrUpdateRecord(records.players[i], 'player', function(err, recordOutput) {
-                // not sure if I need to do aything here (or if I can)
-                if (err) {
-                  errors.push({error: err, object: 'player'});
-                } else {
-                  players.push(recordOutput);
-                }
-                if (i === records.players.length) {
-                  callback(null, players);
-                }
-              });
-            }
-            // object was not included as input
-          } else {
-            callback(null, players);
-          }
+          loopCreateObj('player', records.players, callback);
         },
         playerMatches: function(callback){
-          var playerMatches = [];
-          if (records.hasOwnProperty('playerMatches')) {
-            for (var i = 0; i < records.playerMatches.length; i++) {
-              createOrUpdateRecord(records.playerMatches[i], 'playerMatch', function(err, recordOutput) {
-                // not sure if I need to do aything here (or if I can)
-                if (err) {
-                  errors.push({error: err, object: 'playerMatch'});
-                } else {
-                  playerMatches.push(recordOutput);
-                }
-                if (i === records.playerMatches.length) {
-                  callback(null, playerMatches);
-                }
-              });
-            }
-            // object was not included as input
-          } else {
-            callback(null, playerMatches);
-          }
-        },
+          loopCreateObj('playerMatch', records.playerMatches, callback);
+         },
         matches: function(callback){
-          var matches = [];
-          if (records.hasOwnProperty('matches')) {
-            for (var i = 0; i < records.matches.length; i++) {
-              createOrUpdateRecord(records.matches[i], 'match', function(err, recordOutput) {
-                // not sure if I need to do aything here (or if I can)
-                if (err) {
-                  errors.push({error: err, object: 'match'});
-                } else {
-                  matches.push(recordOutput);
-                }
-                if (i === records.matches.length) {
-                  callback(null, matches);
-                }
-              });
-            }
-            // object was not included as input
-          } else {
-            callback(null, matches);
-          }
-        },
+          loopCreateObj('match', records.matches, callback);
+         },
         featureRequests: function(callback){
-          var featureRequests = [];
-          if (records.hasOwnProperty('featureRequests')) {
-            for (var i = 0; i < records.featureRequests.length; i++) {
-              createOrUpdateRecord(records.featureRequests[i], 'featureRequest', function(err, recordOutput) {
-                // not sure if I need to do aything here (or if I can)
-                if (err) {
-                  errors.push({error: err, object: 'featureRequest'});
-                } else {
-                  featureRequests.push(recordOutput);
-                }
-                if (i === records.featureRequests.length) {
-                  callback(null, featureRequests);
-                }
-              });
-            }
-            // object was not included as input
-          } else {
-            callback(null, featureRequests);
-          }
-        }
-      },
-      function(err, results) {
-          if (err || errors.length > 0) {
-            if (err) errors.push({error: err, object: 'unknown'});
-            cb(errors, results);
-          } else {
-            cb(null, results);
-          }
+          loopCreateObj('featureRequest', records.featureRequests, callback);
+         }
+      }, function(err, results) {
+          cb(err, results);
       });
 
-      recordType = recordTyperecordType.toLowerCase();
-      // build object with specific fields based on model
-      record = getObjForRecordType(record, recordType);
-      if (records.hasOwnProperty('player')) {
-        createOrUpdateRecord(records.player, 'player', function(err, recordOutput) {
-
-          if (records.hasOwnProperty('player')) {
-            createOrUpdateRecord(records.player, 'player', function(err, recordOutput) {
-
-              if (records.hasOwnProperty('player')) {
-                createOrUpdateRecord(records.player, 'player', function(err, recordOutput) {
-
-                  if (records.hasOwnProperty('player')) {
-                    createOrUpdateRecord(records.player, 'player', function(err, recordOutput) {
-
-                  });
-                  }
-              });
-              }
-          });
-          }
-        });
-      }
-
     } catch(err) {
-      cb(err, null);
+      cb(err, results);
     }
-  }
-
   }
 
   /** Get object based on data model instead of trusting record input - PUBLIC */
   function getObjForRecordType(record, recordType) {
-    recordType = recordTyperecordType.toLowerCase();
-    returnRecord = {};
+    recordType = recordType.toLowerCase();
+    var returnRecord = {};
 
     if (recordType === 'player') {
-      record = {
+      returnRecord = {
         Name: record.Name,
         atg_gameroom__External_Id__c: record.atg_gameroom__External_Id__c,
         atg_gameroom__Active__c: record.atg_gameroom__Active__c,
@@ -241,7 +140,7 @@
         atg_gameroom__Game__c: record.atg_gameroom__Game__c,
         atg_gameroom__Score_Recorded_Date__c: record.atg_gameroom__Score_Recorded_Date__c
       };
-    } else if (recordType === 'playerMatch') {
+    } else if (recordType === 'playermatch') {
       returnRecord = {
         Name: record.Name,
         atg_gameroom__External_Id__c: record.atg_gameroom__External_Id__c,
@@ -253,7 +152,7 @@
         atg_gameroom__Points_Scored__c: record.atg_gameroom__Points_Scored__c,
         atg_gameroom__Score_Recorded_Date__c: record.atg_gameroom__Score_Recorded_Date__c
       };
-    } else if (recordType === 'featureRequest') {
+    } else if (recordType === 'featurerequest') {
       returnRecord = {
         Name: record.Name,
         atg_gameroom__External_Id__c: record.atg_gameroom__External_Id__c,
@@ -270,6 +169,68 @@
     return returnRecord;
   }
 
+///////////////// PRIVATE FUNCTIONS ////////////////////////////
+
+
+  ////////// Helper to loop asynchronously ///////////////////
+
+  function asyncLoop(iterations, func, callback) {
+      var index = 0;
+      var done = false;
+      var loop = {
+          next: function() {
+              if (done) { return; }
+              if (index < iterations) {
+                  index++;
+                  func(loop);
+              } else {
+                  done = true;
+                  callback();
+              }
+          },
+          iteration: function() {
+              return index - 1;
+          },
+          break: function() {
+              done = true;
+              callback();
+          }
+      };
+      loop.next();
+      return loop;
+  }
+
+  ////// Helper to loop records to create or update multiple records //////////////
+
+  function loopCreateObj(objType, obj, callback) {
+    var outputArr = [];
+    var errors = [];
+    if (obj && Array.isArray(obj)) {
+      asyncLoop(obj.length, function(loop){
+        var record = obj[loop.iteration()];
+        genIdIfNotExist(record);
+        createOrUpdateRecord(record, objType, function(err, recordOutput) {
+          if (err) {
+            errors.push({error: err, object: objType});
+          } else {
+            outputArr.push(recordOutput);
+          }
+          loop.next();
+        });
+      }, function() {
+        if (errors.length === 0) {
+          errors = null;
+        }
+        callback(errors, outputArr);
+      });
+        // object was not included as input
+    } else {
+      console.log('type not found on object');
+      callback('type not found on object', outputArr);
+    }
+  }
+
+
   ///////////// DATABASE FUNCTIONS - PRIVATE //////////////////////////////
 
   /** Create or update database record */
@@ -284,7 +245,6 @@
           if (!player) {
             // Create player
             var newPlayer = new Player(record);
-
             newPlayer.save(function(err) {
               if (err) {
                 cb("Could not create record", null);
