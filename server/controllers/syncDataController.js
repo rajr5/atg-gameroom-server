@@ -224,8 +224,8 @@
  //////////////////////////////////////// ALL RECORDS //////////////////////////////////////////////////////
 
   module.exports.getAll = function(req, res) {
-
-    dataHelper.fetchAllRecords(excludeIds(), function(err, recordOutput) {
+    var excludeId = excludeIds(req);
+    dataHelper.fetchAllRecords(excludeId, function(err, recordOutput) {
       if (err) {
         sendJson(res, 400, {message: "Error fetching records", error: err, records: recordOutput});
       } else {
